@@ -4,7 +4,7 @@
 set -e
 
 # 1. Update package list and install prerequisites
-sudo apt update && sudo apt install -y curl gnupg2 lsb-release git python3-vcstool python3-colcon-common-extensions
+sudo apt update && sudo apt install -y curl gnupg2 lsb-release git
 
 # 2. Download the ROS2 GPG key
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
@@ -14,6 +14,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 
 # 4. Update package list with the new repository
 sudo apt update
+sudo apt install python3-vcstool python3-colcon-common-extensions
 
 # 5. Install ROS 2 Jazzy Desktop
 sudo apt install -y ros-jazzy-desktop
