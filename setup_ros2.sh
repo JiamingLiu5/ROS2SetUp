@@ -19,6 +19,7 @@ sudo apt update
 sudo apt install -y ros-jazzy-desktop
 
 # 6. Environment setup (System level)
+# Sourcing it in the script so the current shell session can use it
 source /opt/ros/jazzy/setup.bash
 if ! grep -q "source /opt/ros/jazzy/setup.bash" ~/.bashrc; then
     echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
@@ -32,7 +33,12 @@ fi
 if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
     sudo rosdep init
 fi
+
+# Rosdep update can occasionally flake on network errors; 
+# we temporarily disable 'set -e' so a network blip doesn't kill the script.
+set +e
 rosdep update
+set -e
 
 # 8. Create ROS 2 Workspace and clone the book repository
 cd ~
@@ -45,10 +51,15 @@ if [ ! -d "book_ros2" ]; then
 fi
 
 # 9. Import third-party repositories
-vcs import . < book_ros2/third_parties.repos
+if [ -f "book_ros2/third_parties.repos" ]; then
+    vcs import . < book_ros2/third_parties.repos
+else
+    echo "Warning: third_parties.repos not found!"
+fi
 
 # 10. Install workspace dependencies via rosdep
 cd ~/bookros2_ws
+sudo apt update # Ensure apt cache is awake for rosdep
 rosdep install --from-paths src --ignore-src -r -y
 
 # 11. Build the workspace
